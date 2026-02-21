@@ -22,7 +22,6 @@ for _ in range(n):
     cmd = parts[0]
 
     if cmd == "set":
-        # на всякий случай: если вдруг value отсутствует
         key = parts[1]
         value = parts[2] if len(parts) > 2 else ""
         storage[key] = value

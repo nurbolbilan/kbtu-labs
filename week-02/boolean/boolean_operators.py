@@ -13,7 +13,6 @@ print("can_play:", can_play)
 is_raining = True
 print("not is_raining:", not is_raining)
 
-# пример посложнее
 score = 78
 passed = (score >= 50) and (score <= 100)
 print("passed:", passed)
