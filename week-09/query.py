@@ -1,22 +1,22 @@
-import psycopg2
-from config import load_config
-
-config = load_config()
+from connect import get_connection
 
 def all_name():
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cur:
             cur.execute("SELECT user_name FROM data")
             return cur.fetchall()
 
 def all_phone():
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cur:
             cur.execute("select user_phone from data")
             return cur.fetchall()
 
 def find_user_name(user_id):
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cur:
             cur.execute("select user_id, user_name from data")
             rows = cur.fetchall()
@@ -27,7 +27,8 @@ def find_user_name(user_id):
 
 
 def find_user_phone(user_id):
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cur:
             cur.execute("select user_id, user_phone from data")
             rows = cur.fetchall()

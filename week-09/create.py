@@ -1,4 +1,3 @@
-import psycopg2
 from connect import get_connection
 
 config = get_connection()

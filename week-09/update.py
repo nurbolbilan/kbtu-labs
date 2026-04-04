@@ -1,7 +1,5 @@
-import psycopg2
-from config import load_config
-
-config = load_config()
+from connect import get_connection
+conn = get_connection()
 
 sql_for_name = """ UPDATE data
             SET user_name = %s
@@ -12,13 +10,13 @@ sql_for_phone = """ UPDATE data
             WHERE user_id = %s"""
 
 def update_for_name(name, user_id):
-    with psycopg2.connect(**config) as conn:
+    with conn:
         with conn.cursor() as cursor:
             cursor.execute(sql_for_name, (name, user_id))
             conn.commit()
 
 def update_for_phone(phone, user_id):
-    with psycopg2.connect(**config) as conn:
+    with conn:
         with conn.cursor() as cursor:
             cursor.execute(sql_for_phone, (phone, user_id))
             conn.commit()

@@ -1,18 +1,17 @@
-import psycopg2
-from config import load_config
-
-config = load_config()
+from connect import get_connection
 
 def delete_by_name(user_name):
     sql = 'DELETE FROM data WHERE user_name = %s'
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cursor:
             cursor.execute(sql, (user_name,))
             conn.commit()
 
 def delete_by_phone(user_phone):
     sql = 'DELETE FROM data WHERE user_phone = %s'
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cursor:
             cursor.execute(sql, (user_phone,))
             conn.commit()

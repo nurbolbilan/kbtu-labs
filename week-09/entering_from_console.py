@@ -1,13 +1,11 @@
-import psycopg2
-from config import load_config
-
-config = load_config()
+from connect import get_connection
 
 sql = """INSERT INTO data(user_name, user_phone)
          VALUES(%s, %s) RETURNING user_id;"""
 
 def insert(name, phone):
-    with psycopg2.connect(**config) as conn:
+    conn = get_connection()
+    with conn:
         with conn.cursor() as cursor:
             cursor.execute(sql, (name, phone))
             conn.commit()
