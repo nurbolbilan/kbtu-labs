@@ -1,9 +1,10 @@
 import psycopg2
-from config import load_config
+from connect import get_connection
 
-config = load_config()
+config = get_connection()
 
-with psycopg2.connect(**config) as conn:
+conn = get_connection()
+with conn:
     with conn.cursor() as cursor:
         cursor.execute("""CREATE TABLE data
         (user_id SERIAL NOT NULL,
