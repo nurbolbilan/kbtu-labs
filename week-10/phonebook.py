@@ -6,8 +6,8 @@ def first_task():
     for row in user:
         print(row[0])
 
-def second_task(user):
-    cur.execute("CALL add_new_user(%s, %s);", user)
+def second_task(user_name, user_phone):
+    cur.execute("CALL add_new_user(%s, %s);", (user_name, user_phone))
     conn.commit()
 
 def third_task(names, phones):
@@ -26,4 +26,5 @@ def fifth_task(user):
 
 with get_connection() as conn:
     with conn.cursor() as cur:
+        # second_task("Kazbek Kaz", "+77075656595")
         first_task()
