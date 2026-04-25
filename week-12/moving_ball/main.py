@@ -1,5 +1,4 @@
 import pygame
-import sys
 from ball import Ball
 
 pygame.init()
@@ -30,8 +29,7 @@ while running:
 
     screen.fill(WHITE)
     ball.draw(screen)
-    pygame.display.flip()
+    pygame.display.update()
     clock.tick(60)
 
 pygame.quit()
-sys.exit()
