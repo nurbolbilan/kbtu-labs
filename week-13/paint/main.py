@@ -1,131 +1,137 @@
 import pygame
+import random
 
-# Constants for tools
-TOOL_BRUSH = "brush"
-TOOL_RECT = "rect"
-TOOL_CIRCLE = "circle"
-TOOL_ERASER = "eraser"
-
-
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Pygame Paint: 1-Brush, 2-Rect, 3-Circle, 4-Eraser | R,G,B,W-Colors")
-    clock = pygame.time.Clock()
-
-    # Editor state
-    radius = 15
-    current_color = (0, 0, 255)  # Default Blue
-    current_tool = TOOL_BRUSH
-
-    # List to store all drawn objects to keep them on screen
-    # Structure: {'tool': str, 'color': tuple, 'points': list, 'radius': int}
-    objects = []
-
-    drawing = False
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-
-            # 1. Tool and Color Selection via Keyboard
-            if event.type == pygame.KEYDOWN:
-                # Color keys
-                if event.key == pygame.K_r: current_color = (255, 0, 0)
-                if event.key == pygame.K_g: current_color = (0, 255, 0)
-                if event.key == pygame.K_b: current_color = (0, 0, 255)
-                if event.key == pygame.K_w: current_color = (255, 255, 255)
-
-                # Tool keys
-                if event.key == pygame.K_1: current_tool = TOOL_BRUSH
-                if event.key == pygame.K_2: current_tool = TOOL_RECT
-                if event.key == pygame.K_3: current_tool = TOOL_CIRCLE
-                if event.key == pygame.K_4: current_tool = TOOL_ERASER
-
-            # 2. Mouse Interaction Logic
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Left click to start drawing
-                    drawing = True
-                    start_pos = event.pos
-                    # If eraser is selected, use background color (black)
-                    color = (0, 0, 0) if current_tool == TOOL_ERASER else current_color
-
-                    objects.append({
-                        'tool': current_tool,
-                        'color': color,
-                        'points': [start_pos],
-                        'radius': radius
-                    })
-
-                # 3. Brush Size Adjustment (Mouse Wheel)
-                elif event.button == 4:  # Scroll Up
-                    radius = min(100, radius + 1)
-                elif event.button == 5:  # Scroll Down
-                    radius = max(1, radius - 1)
-
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    drawing = False
-
-            if event.type == pygame.MOUSEMOTION and drawing:
-                curr_obj = objects[-1]
-                if current_tool in [TOOL_BRUSH, TOOL_ERASER]:
-                    # Continuous drawing for brush and eraser
-                    curr_obj['points'].append(event.pos)
-                else:
-                    # For shapes, only store start and current (end) point
-                    if len(curr_obj['points']) > 1:
-                        curr_obj['points'][1] = event.pos
-                    else:
-                        curr_obj['points'].append(event.pos)
-
-        # RENDERING
-        screen.fill((0, 0, 0))  # Clear screen with black
-
-        for obj in objects:
-            pts = obj['points']
-            if not pts: continue
-
-            if obj['tool'] in [TOOL_BRUSH, TOOL_ERASER]:
-                # Draw a smooth line by interpolating between points
-                for i in range(len(pts) - 1):
-                    drawLineBetween(screen, pts[i], pts[i + 1], obj['radius'], obj['color'])
-
-            elif obj['tool'] == TOOL_RECT and len(pts) > 1:
-                # Draw a rectangle outline
-                rect_data = get_rect_tuple(pts[0], pts[1])
-                pygame.draw.rect(screen, obj['color'], rect_data, min(obj['radius'], 5))
-
-            elif obj['tool'] == TOOL_CIRCLE and len(pts) > 1:
-                # Draw a circle (distance from start to end is radius)
-                dx = pts[1][0] - pts[0][0]
-                dy = pts[1][1] - pts[0][1]
-                dist = int((dx ** 2 + dy ** 2) ** 0.5)
-                pygame.draw.circle(screen, obj['color'], pts[0], dist, min(obj['radius'], 5))
-
-        pygame.display.flip()
-        clock.tick(120)
+# --- Constants ---
+WIDTH, HEIGHT = 600, 400
+BLOCK_SIZE = 20
+INITIAL_SPEED = 5
+FOOD_PER_LEVEL = 3  # Increase level after every 3 foods eaten
 
 
-def get_rect_tuple(p1, p2):
-    """Calculates top-left coordinates and dimensions for a rectangle."""
-    x = min(p1[0], p2[0])
-    y = min(p1[1], p2[1])
-    w = abs(p1[0] - p2[0])
-    h = abs(p1[1] - p2[1])
-    return (x, y, w, h)
+class Snake:
+    def __init__(self):
+        # Initial snake body: 3 blocks long
+        self.body = [[100, 100], [80, 100], [60, 100]]
+        self.direction = "RIGHT"
+
+    def move(self, grow=False):
+        # Calculate new head position based on current direction
+        head = list(self.body[0])
+        if self.direction == "UP":
+            head[1] -= BLOCK_SIZE
+        elif self.direction == "DOWN":
+            head[1] += BLOCK_SIZE
+        elif self.direction == "LEFT":
+            head[0] -= BLOCK_SIZE
+        elif self.direction == "RIGHT":
+            head[0] += BLOCK_SIZE
+
+        # Add new head to the body
+        self.body.insert(0, head)
+
+        # If snake didn't eat food, remove the last tail segment to simulate movement
+        if not grow:
+            self.body.pop()
+
+    def draw(self, surface):
+        # Draw each segment of the snake body
+        for part in self.body:
+            pygame.draw.rect(surface, (0, 255, 0), (*part, BLOCK_SIZE, BLOCK_SIZE))
 
 
-def drawLineBetween(screen, start, end, width, color):
-    """Draws a solid line by filling gaps with small circles."""
-    dx = start[0] - end[0]
-    dy = start[1] - end[1]
-    iterations = max(abs(dx), abs(dy))
-    for i in range(iterations):
-        progress = i / iterations
-        x = int((1 - progress) * start[0] + progress * end[0])
-        y = int((1 - progress) * start[1] + progress * end[1])
-        pygame.draw.circle(screen, color, (x, y), width)
+class Food:
+    def __init__(self, snake_body):
+        # Generate initial position avoiding the snake
+        self.pos = self.generate_pos(snake_body)
 
-main()
+    def generate_pos(self, snake_body):
+        """Generates a random position that does not overlap with the snake body"""
+        while True:
+            # Align food position with the grid (multiples of BLOCK_SIZE)
+            pos = [random.randrange(0, WIDTH // BLOCK_SIZE) * BLOCK_SIZE,
+                   random.randrange(0, HEIGHT // BLOCK_SIZE) * BLOCK_SIZE]
+
+            # Check if food is inside the snake
+            if pos not in snake_body:
+                return pos
+
+    def draw(self, surface):
+        # Draw the food as a red square
+        pygame.draw.rect(surface, (255, 0, 0), (*self.pos, BLOCK_SIZE, BLOCK_SIZE))
+
+
+# --- Game Setup ---
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Snake Game: Levels & Speed")
+font = pygame.font.SysFont("Arial", 20)
+clock = pygame.time.Clock()
+
+# Initialize game objects
+snake = Snake()
+food = Food(snake.body)
+
+# Game state variables
+score = 0
+level = 1
+speed = INITIAL_SPEED
+running = True
+
+# --- Main Game Loop ---
+while running:
+    # Fill background with black
+    screen.fill((0, 0, 0))
+
+    # 1. Event Handling (Input)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            # Prevent snake from reversing directly (e.g., cannot go UP if currently going DOWN)
+            if event.key == pygame.K_UP and snake.direction != "DOWN":
+                snake.direction = "UP"
+            elif event.key == pygame.K_DOWN and snake.direction != "UP":
+                snake.direction = "DOWN"
+            elif event.key == pygame.K_LEFT and snake.direction != "RIGHT":
+                snake.direction = "LEFT"
+            elif event.key == pygame.K_RIGHT and snake.direction != "LEFT":
+                snake.direction = "RIGHT"
+
+    # 2. Food Collision Logic
+    if snake.body[0] == food.pos:
+        score += 1
+        snake.move(grow=True)  # Move and add a segment (no pop())
+        food = Food(snake.body)  # Generate new food at a valid location
+
+        # 3. Level Up Logic
+        if score % FOOD_PER_LEVEL == 0:
+            level += 1
+            speed += 2  # Increase game speed (frequency of updates)
+    else:
+        snake.move()  # Normal movement
+
+    # 4. Wall and Self-Collision Check
+    head = snake.body[0]
+    # Check if head is out of screen borders
+    out_of_bounds = (head[0] < 0 or head[0] >= WIDTH or head[1] < 0 or head[1] >= HEIGHT)
+    # Check if head touched any part of its own body
+    self_collision = head in snake.body[1:]
+
+    if out_of_bounds or self_collision:
+        running = False  # Game Over
+
+    # 5. Rendering (Drawing)
+    snake.draw(screen)
+    food.draw(screen)
+
+    # Render Score and Level text
+    info_text = font.render(f"Score: {score}  Level: {level}  Speed: {speed}", True, (255, 255, 255))
+    screen.blit(info_text, (10, 10))
+
+    # Update display
+    pygame.display.flip()
+
+    # Control game speed via clock tick
+    clock.tick(speed)
+
+pygame.quit()
