@@ -77,7 +77,6 @@ level = 1
 speed = INITIAL_SPEED
 running = True
 
-# --- Main Game Loop ---
 while running:
     # Fill background with black
     screen.fill((0, 0, 0))
