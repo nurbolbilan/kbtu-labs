@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Nurbol",
+        "score": 300,
+        "distance": 82
+    },
+    {
+        "name": "\u043d\u0443\u0440\u0431\u043e\u043b",
+        "score": 22,
+        "distance": 86,
+        "coins": 7
+    },
+    {
+        "name": "Nurbol",
+        "score": 18,
+        "distance": 44,
+        "coins": 7
+    },
+    {
+        "name": "nurbol",
+        "score": 17,
+        "distance": 77,
+        "coins": 5
+    },
+    {
+        "name": "Nurbol",
+        "score": 14,
+        "distance": 85,
+        "coins": 3
+    },
+    {
+        "name": "nurbol",
+        "score": 13,
+        "distance": 36,
+        "coins": 5
+    },
+    {
+        "name": "Nurbol",
+        "score": 10,
+        "distance": 25,
+        "coins": 4
+    },
+    {
+        "name": "Player",
+        "score": 8,
+        "distance": 71
+    },
+    {
+        "name": "nurbol",
+        "score": 6,
+        "distance": 21,
+        "coins": 2
+    },
+    {
+        "name": "nurbol",
+        "score": 4,
+        "distance": 23,
+        "coins": 1
+    }
+]

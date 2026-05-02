@@ -27,4 +27,4 @@ def fifth_task(user):
 with get_connection() as conn:
     with conn.cursor() as cur:
         # second_task("Kazbek Kaz", "+77075656595")
-        first_task()
+        fourth_task()
